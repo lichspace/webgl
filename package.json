@@ -1,0 +1,24 @@
+{
+  "name": "webgl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "esbuild src/index.ts --bundle --sourcemap --outfile=dist/webgl.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lichspace/webgl.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lichspace/webgl/issues"
+  },
+  "homepage": "https://github.com/lichspace/webgl#readme",
+  "devDependencies": {
+    "esbuild": "^0.15.5",
+    "typescript": "^4.8.2"
+  }
+}
