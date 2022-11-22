@@ -1,4 +1,5 @@
 import { Application } from "./application";
+import { loadImage } from "./image/loadImg";
 import { createAttributeSetters, createBufferInfoFromArrays, setAttributes, createVAOAndSetAttributes, drawBufferInfo } from "./utils";
 
 const app = new Application({
@@ -35,4 +36,18 @@ async function renderTriangles() {
 
 }
 
-renderTriangles();
+// renderTriangles();
+
+async function renderImage() {
+    const img = await loadImage('/assets/img/apple.png');
+    const program = await Application.autoCreateProgram(gl, './shader/image.vert', './shader/image.frag');
+    gl.useProgram(program);
+
+    const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+
+    const texCoordAttributeLocation = gl.getAttribLocation(program, "a_texCoord");
+
+}
+
+renderImage();
