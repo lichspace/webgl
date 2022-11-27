@@ -42,6 +42,7 @@ export class Application implements IApplication {
 
         // Link the two shaders into a program
         const program = this.createProgram(gl, vertexShader, fragmentShader);
+        gl.useProgram(program as WebGLProgram);
         return program as WebGLProgram;
     }
 

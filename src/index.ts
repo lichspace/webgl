@@ -1,5 +1,7 @@
 import { Application } from "./application";
+import { createImageTexture } from "./image/creatImageTexture";
 import { loadImage } from "./image/loadImg";
+import { bindBuffer, setUniform } from "./utils2";
 
 const app = new Application({
   canvas: document.querySelector("canvas") as HTMLCanvasElement,
@@ -15,7 +17,6 @@ async function renderTriangles() {
     "./shader/triangle.vert",
     "./shader/triangle.frag"
   );
-  gl.useProgram(program);
 
   const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
@@ -52,72 +53,44 @@ async function renderImage() {
     "./shader/image.frag"
   );
 
-  const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-  const texCoordAttributeLocation = gl.getAttribLocation(program, "a_texCoord");
-
-  // lookup uniforms
-  const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-  const imageLocation = gl.getUniformLocation(program, "u_image");
-
   // Create a vertex array object (attribute state)
   const vao = gl.createVertexArray();
   gl.bindVertexArray(vao);
 
-  // provide texture coordinates for the rectangle.
-  const texCoordBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  setRectangle(gl, 0.0, 0.0, 1.0, 1.0);
-  gl.enableVertexAttribArray(texCoordAttributeLocation);
-  gl.vertexAttribPointer(texCoordAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+  bindBuffer({
+    gl,
+    program,
+    name: "a_position",
+    rectangle: [0.0, 0.0, image.width, image.height],
+  });
 
-  // Create a texture.
-  const texture = gl.createTexture();
-  gl.activeTexture(gl.TEXTURE0 + 0);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
+  bindBuffer({
+    gl,
+    program,
+    name: "a_texCoord",
+    rectangle: [0.0, 0.0, 1.0, 1.0],
+  });
 
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  const imageTextureNumber = createImageTexture(gl, image);
 
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+  setUniform({
+    gl,
+    program,
+    type: "uniform2f",
+    name: "u_resolution",
+    data: [gl.canvas.width, gl.canvas.height],
+  });
+
+  setUniform({
+    gl,
+    program,
+    type: "uniform1i",
+    name: "u_image",
+    data: [imageTextureNumber],
+  });
 
   app.clear();
-
-  // Tell it to use our program (pair of shaders)
-  gl.useProgram(program);
-
-  // Bind the attribute/buffer set we want.
-  gl.bindVertexArray(vao);
-
-  gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
-  gl.uniform1i(imageLocation, 0);
-
-  const positionBuffer = gl.createBuffer();
-  gl.enableVertexAttribArray(positionAttributeLocation);
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-  setRectangle(gl, 0, 0, image.width, image.height);
-
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
 
 renderImage();
-
-function setRectangle(
-  gl: WebGL2RenderingContext,
-  x: number,
-  y: number,
-  width: number,
-  height: number
-) {
-  const x1 = x;
-  const x2 = x + width;
-  const y1 = y;
-  const y2 = y + height;
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array([x1, y1, x2, y1, x1, y2, x1, y2, x2, y1, x2, y2]),
-    gl.STATIC_DRAW
-  );
-}
