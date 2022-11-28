@@ -11,11 +11,18 @@ uniform vec2 u_resolution;
 // Used to pass the texture coordinates to the fragment shader
 out vec2 v_texCoord;
 
+vec2 rotate(vec2 p){
+  float angle = radians(10.0);
+  float x = p.x * cos(angle) - p.y * sin(angle);
+  float y = p.x * sin(angle) + p.y * cos(angle);
+  return vec2(x, y);
+}
+
 // all shaders have a main function
 void main() {
-
+  vec2 position = rotate(a_position);
   // convert the position from pixels to 0.0 to 1.0
-  vec2 zeroToOne = a_position / u_resolution;
+  vec2 zeroToOne = position / u_resolution;
 
   // convert from 0->1 to 0->2
   vec2 zeroToTwo = zeroToOne * 2.0;

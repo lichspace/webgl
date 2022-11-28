@@ -61,7 +61,7 @@ async function renderImage() {
     gl,
     program,
     name: "a_position",
-    rectangle: [0.0, 0.0, image.width, image.height],
+    rectangle: [(app.width - image.width)/2, (app.height - image.height)/ 2, image.width, image.height],
   });
 
   bindBuffer({
